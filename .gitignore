@@ -1,0 +1,5 @@
+gen/
+__pycache__
+.idea/
+cookie_guoren.txt
+cookie_xueqiu.txt
