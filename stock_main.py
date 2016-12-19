@@ -30,7 +30,7 @@ class StockDecoder(json.JSONDecoder):
         return XueqiuStockList()
 
 
-xueqiu = XueqiuStategys.fastest()
+xueqiu = XueqiuStategys.stable()
 headers = XueqiuApi.get_req_headers()
 url = xueqiu.get_req_url()
 print('---req:\n' + url)
@@ -53,15 +53,17 @@ file = open('gen/{}.txt'.format(xueqiu.name), 'w', encoding='utf-8')
 file.write('{}'.format(xueqiu_stock_list.stock_list))
 file.close()
 for idx, stock_item in enumerate(xueqiu_stock_list.stock_list):
-    plt.figure(num=1, figsize=(8, 24))
+    plt.figure(num=1, figsize=(8, 26))
     plt.clf()
     plt.suptitle('{} {}\n动态市盈率:{}, 市净率:{},股息率:{}'.format(
             stock_item.name, stock_item.symbol, stock_item.pettm, stock_item.pb, stock_item.dy))
     print('symbol:' + stock_item.symbol[2:])
     guoren_api = GuorenApi(stock_item.symbol[2:])
-    print('guoren url:' + guoren_api.get_req_url())
-    guoren_data = guoren_api.get_req_data().encode("utf8")
-    print('guoren_data:' + guoren_api.get_req_data())
+
+    plt.subplot(711)
+    plt.title('历史PE')
+    guoren_data = guoren_api.get_req_data_pe().encode("utf8")
+    print('pe_guoren_data:' + guoren_api.get_req_data_pe())
     guoren_data_len = len(guoren_data)
     guoren_headers = guoren_api.get_req_headers()
     guoren_headers['Content-Length'] = str(guoren_data_len)
@@ -71,8 +73,6 @@ for idx, stock_item in enumerate(xueqiu_stock_list.stock_list):
     guoren_content = urllib.request.urlopen(guoren_req).read().decode("utf8")
     print(guoren_content)
     guoren_pe_data = json.loads(guoren_content)
-    plt.subplot(611)
-    plt.title('历史PE')
     axis_data = guoren_pe_data['data']['sheet_data']['meas_data'][0]
     axis_index = guoren_pe_data['data']['sheet_data']['row'][0]['data'][1]
     axis_index = list(map(lambda x: x[2:], axis_index))
@@ -81,19 +81,42 @@ for idx, stock_item in enumerate(xueqiu_stock_list.stock_list):
         axis_data = axis_data[end_index - 1500:end_index:1]
         axis_index = axis_index[end_index - 1500:end_index:1]
     Series(data=axis_data, index=axis_index).plot()
-    plt.subplot(612)
+
+    plt.subplot(712)
+    plt.title('历史PB')
+    guoren_data = guoren_api.get_req_data_pb().encode("utf8")
+    print('pb_guoren_data:' + guoren_api.get_req_data_pb())
+    guoren_data_len = len(guoren_data)
+    guoren_headers = guoren_api.get_req_headers()
+    guoren_headers['Content-Length'] = str(guoren_data_len)
+    guoren_req = urllib.request.Request(guoren_api.get_req_url(),
+                                        data=guoren_data,
+                                        headers=guoren_headers, method='POST')
+    guoren_content = urllib.request.urlopen(guoren_req).read().decode("utf8")
+    print(guoren_content)
+    guoren_pb_data = json.loads(guoren_content)
+    axis_data = guoren_pb_data['data']['sheet_data']['meas_data'][0]
+    axis_index = guoren_pb_data['data']['sheet_data']['row'][0]['data'][1]
+    axis_index = list(map(lambda x: x[2:], axis_index))
+    if 1500 < len(axis_data) == len(axis_index):
+        end_index = len(axis_data)
+        axis_data = axis_data[end_index - 1500:end_index:1]
+        axis_index = axis_index[end_index - 1500:end_index:1]
+    Series(data=axis_data, index=axis_index).plot()
+
+    plt.subplot(713)
     plt.title(stock_item.roediluted.name)
     stock_item.roediluted.sort_index(ascending=True).plot()
-    plt.subplot(613)
+    plt.subplot(714)
     plt.title(stock_item.income_grow.name)
     stock_item.income_grow.sort_index(ascending=True).plot()
-    plt.subplot(614)
+    plt.subplot(715)
     plt.title(stock_item.profit_grow.name)
     stock_item.profit_grow.sort_index(ascending=True).plot()
-    plt.subplot(615)
+    plt.subplot(716)
     plt.title(stock_item.gross.name)
     stock_item.gross.sort_index(ascending=True).plot()
-    plt.subplot(616)
+    plt.subplot(717)
     plt.title(stock_item.interest.name)
     stock_item.interest.sort_index(ascending=True).plot()
     # plt.show()
