@@ -31,11 +31,13 @@ class GuorenApi(object):
     def get_req_data_pb(self):
         return '{"ticker":[["%s","0.M.股票每日指标_市净率.0"]],"index":[],"sector":[],"pool":[],"strategy":[]}' % self.symbol
 
+    def get_req_data_volume(self):
+        return '{"ticker":[["%s","0.M.股票每日指标_5日均成交量.0"]],"index":[],"sector":[],"pool":[],"strategy":[]}' % self.symbol
 
 if __name__ == '__main__':
     guoren_api = GuorenApi('601166')
     print('url:' + guoren_api.get_req_url())
-    data = guoren_api.get_req_data_pb().encode("utf8")
+    data = guoren_api.get_req_data_volume().encode("utf8")
     data_len = len(data)
     headers = guoren_api.get_req_headers()
     headers['Content-Length'] = str(data_len)
