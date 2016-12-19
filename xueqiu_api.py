@@ -1,3 +1,5 @@
+import urllib.request
+
 from user_define_cookie import UserDefineCookie
 
 
@@ -52,6 +54,16 @@ class XueqiuApi(object):
 
     def get_req_url(self):
         return self.__req_url
+
+    def submit_req(self, page=1):
+        headers = XueqiuApi.get_req_headers()
+        url = self.get_req_url()
+        print('---req:\n' + url)
+        if page > 1:
+            url += '&page=%d' % page
+        req = urllib.request.Request(url, headers=headers)
+        content = urllib.request.urlopen(req).read().decode("utf8")
+        return content
 
     @staticmethod
     def get_req_headers():

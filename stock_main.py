@@ -3,14 +3,12 @@
 
 import json
 import os
-import urllib.request
 from json.decoder import WHITESPACE
 
 import matplotlib.pyplot as plt
 from pandas import Series
 
 from guoren_api import GuorenApi
-from xueqiu_api import XueqiuApi
 from xueqiu_data import XueqiuStock
 from xueqiu_data import XueqiuStockList
 from xueqiu_strategy import XueqiuStategys
@@ -30,19 +28,13 @@ class StockDecoder(json.JSONDecoder):
         return XueqiuStockList()
 
 
-xueqiu = XueqiuStategys.stable_strict()
-headers = XueqiuApi.get_req_headers()
-url = xueqiu.get_req_url()
-print('---req:\n' + url)
-req = urllib.request.Request(url, headers=headers)
-content = urllib.request.urlopen(req).read().decode("utf8")
+# step 1: req filter strategy from xueqiu
+xueqiu = XueqiuStategys.fastest()
+content = xueqiu.submit_req()
 print(content)
 xueqiu_stock_list = json.loads(content, cls=StockDecoder)
 while xueqiu_stock_list.has_more():
-    new_url = url + '&page=%d' % xueqiu_stock_list.get_req_new_page()
-    print('---req:%d\n' % xueqiu_stock_list.get_req_new_page() + new_url)
-    req = urllib.request.Request(new_url, headers=headers)
-    content = urllib.request.urlopen(req).read().decode("utf8")
+    content = xueqiu.submit_req(xueqiu_stock_list.get_req_new_page())
     print(content)
     xueqiu_stock_new_page_list = json.loads(content, cls=StockDecoder)
     xueqiu_stock_list.append_list(xueqiu_stock_new_page_list.stock_list)
@@ -52,6 +44,8 @@ os.makedirs('gen/{}/'.format(xueqiu.name), exist_ok=True)
 file = open('gen/{}.txt'.format(xueqiu.name), 'w', encoding='utf-8')
 file.write('{}'.format(xueqiu_stock_list.stock_list))
 file.close()
+
+# step 2: draw pic and req detail from guoren
 for idx, stock_item in enumerate(xueqiu_stock_list.stock_list):
     plt.figure(num=1, figsize=(8, 30))
     plt.clf()
@@ -62,15 +56,7 @@ for idx, stock_item in enumerate(xueqiu_stock_list.stock_list):
 
     plt.subplot(811)
     plt.title('历史PE')
-    guoren_data = guoren_api.get_req_data_pe().encode("utf8")
-    print('pe_guoren_data:' + guoren_api.get_req_data_pe())
-    guoren_data_len = len(guoren_data)
-    guoren_headers = guoren_api.get_req_headers()
-    guoren_headers['Content-Length'] = str(guoren_data_len)
-    guoren_req = urllib.request.Request(guoren_api.get_req_url(),
-                                        data=guoren_data,
-                                        headers=guoren_headers, method='POST')
-    guoren_content = urllib.request.urlopen(guoren_req).read().decode("utf8")
+    guoren_content = guoren_api.submit_req_pe()
     print(guoren_content)
     guoren_pe_data = json.loads(guoren_content)
     axis_data = guoren_pe_data['data']['sheet_data']['meas_data'][0]
@@ -84,15 +70,7 @@ for idx, stock_item in enumerate(xueqiu_stock_list.stock_list):
 
     plt.subplot(812)
     plt.title('历史PB')
-    guoren_data = guoren_api.get_req_data_pb().encode("utf8")
-    print('pb_guoren_data:' + guoren_api.get_req_data_pb())
-    guoren_data_len = len(guoren_data)
-    guoren_headers = guoren_api.get_req_headers()
-    guoren_headers['Content-Length'] = str(guoren_data_len)
-    guoren_req = urllib.request.Request(guoren_api.get_req_url(),
-                                        data=guoren_data,
-                                        headers=guoren_headers, method='POST')
-    guoren_content = urllib.request.urlopen(guoren_req).read().decode("utf8")
+    guoren_content = guoren_api.submit_req_pb()
     print(guoren_content)
     guoren_pb_data = json.loads(guoren_content)
     axis_data = guoren_pb_data['data']['sheet_data']['meas_data'][0]
@@ -106,15 +84,7 @@ for idx, stock_item in enumerate(xueqiu_stock_list.stock_list):
 
     plt.subplot(813)
     plt.title('5日均成交量(单位:10万)')
-    guoren_data = guoren_api.get_req_data_volume().encode("utf8")
-    print('volume_guoren_data:' + guoren_api.get_req_data_volume())
-    guoren_data_len = len(guoren_data)
-    guoren_headers = guoren_api.get_req_headers()
-    guoren_headers['Content-Length'] = str(guoren_data_len)
-    guoren_req = urllib.request.Request(guoren_api.get_req_url(),
-                                        data=guoren_data,
-                                        headers=guoren_headers, method='POST')
-    guoren_content = urllib.request.urlopen(guoren_req).read().decode("utf8")
+    guoren_content = guoren_api.submit_req_volume()
     print(guoren_content)
     guoren_volume_data = json.loads(guoren_content)
     axis_data = guoren_volume_data['data']['sheet_data']['meas_data'][0]

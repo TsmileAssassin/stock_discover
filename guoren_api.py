@@ -34,6 +34,27 @@ class GuorenApi(object):
     def get_req_data_volume(self):
         return '{"ticker":[["%s","0.M.股票每日指标_5日均成交量.0"]],"index":[],"sector":[],"pool":[],"strategy":[]}' % self.symbol
 
+    def submit_req_pe(self):
+        return self.__submit_req(self.get_req_data_pe())
+
+    def submit_req_pb(self):
+        return self.__submit_req(self.get_req_data_pb())
+
+    def submit_req_volume(self):
+        return self.__submit_req(self.get_req_data_volume())
+
+    def __submit_req(self, req_data):
+        guoren_data = req_data.encode("utf8")
+        guoren_data_len = len(guoren_data)
+        guoren_headers = self.get_req_headers()
+        guoren_headers['Content-Length'] = str(guoren_data_len)
+        guoren_req = urllib.request.Request(self.get_req_url(),
+                                            data=guoren_data,
+                                            headers=guoren_headers, method='POST')
+        guoren_content = urllib.request.urlopen(guoren_req).read().decode("utf8")
+        return guoren_content
+
+
 if __name__ == '__main__':
     guoren_api = GuorenApi('601166')
     print('url:' + guoren_api.get_req_url())
