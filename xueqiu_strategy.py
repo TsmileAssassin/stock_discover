@@ -1,7 +1,7 @@
 from xueqiu_api import XueqiuApi
 
 
-class XueqiuStategys(object):
+class XueqiuStrategies(object):
     @staticmethod
     def stable_strict():
         stable = XueqiuApi('stable_strict')

@@ -1,4 +1,7 @@
+import json
 import urllib.request
+
+from pandas import Series
 
 from user_define_cookie import UserDefineCookie
 
@@ -34,6 +37,27 @@ class GuorenApi(object):
     def get_req_data_volume(self):
         return '{"ticker":[["%s","0.M.股票每日指标_5日均成交量.0"]],"index":[],"sector":[],"pool":[],"strategy":[]}' % self.symbol
 
+    def get_req_data_gross(self):
+        return '{"ticker":[["%s","0.M.股票每日指标_销售毛利率.0"]],"index":[],"sector":[],"pool":[],"strategy":[]}' % self.symbol
+
+    def get_req_data_interest(self):
+        return '{"ticker":[["%s","0.M.股票每日指标_销售净利率.0"]],"index":[],"sector":[],"pool":[],"strategy":[]}' % self.symbol
+
+    def get_req_data_dy(self):
+        return '{"ticker":[["%s","0.M.股票每日指标_股息率.0"]],"index":[],"sector":[],"pool":[],"strategy":[]}' % self.symbol
+
+    def get_req_data_roe(self):
+        return '{"ticker":[["%s","0.M.股票每日指标_资权益回报率.0"]],"index":[],"sector":[],"pool":[],"strategy":[]}' % self.symbol
+
+    def get_req_data_income_grow(self):
+        return '{"ticker":[["%s","0.M.股票每日指标_营业收入同比增长.0"]],"index":[],"sector":[],"pool":[],"strategy":[]}' % self.symbol
+
+    def get_req_data_profie_grow(self):
+        return '{"ticker":[["%s","0.M.股票每日指标_净利润增长率.0"]],"index":[],"sector":[],"pool":[],"strategy":[]}' % self.symbol
+
+    def get_req_data_gross_profie_grow(self):
+        return '{"ticker":[["%s","0.M.股票每日指标_毛利润增长率.0"]],"index":[],"sector":[],"pool":[],"strategy":[]}' % self.symbol
+
     def submit_req_pe(self):
         return self.__submit_req(self.get_req_data_pe())
 
@@ -42,6 +66,27 @@ class GuorenApi(object):
 
     def submit_req_volume(self):
         return self.__submit_req(self.get_req_data_volume())
+
+    def submit_req_gross(self):
+        return self.__submit_req(self.get_req_data_gross())
+
+    def submit_req_interest(self):
+        return self.__submit_req(self.get_req_data_interest())
+
+    def submit_req_dy(self):
+        return self.__submit_req(self.get_req_data_dy())
+
+    def submit_req_roe(self):
+        return self.__submit_req(self.get_req_data_roe())
+
+    def submit_req_income_grow(self):
+        return self.__submit_req(self.get_req_data_income_grow())
+
+    def submit_req_profie_grow(self):
+        return self.__submit_req(self.get_req_data_profie_grow())
+
+    def submit_req_gross_profie_grow(self):
+        return self.__submit_req(self.get_req_data_gross_profie_grow())
 
     def __submit_req(self, req_data):
         guoren_data = req_data.encode("utf8")
@@ -53,6 +98,37 @@ class GuorenApi(object):
                                             headers=guoren_headers, method='POST')
         guoren_content = urllib.request.urlopen(guoren_req).read().decode("utf8")
         return guoren_content
+
+    @staticmethod
+    def parse_json_to_series(guoren_content, item_value_change_func=None, reserved_count=1800):
+        guoren_data = json.loads(guoren_content)
+        axis_data = guoren_data['data']['sheet_data']['meas_data'][0]
+        axis_index = guoren_data['data']['sheet_data']['row'][0]['data'][1]
+        axis_index = list(map(lambda x: x[2:], axis_index))
+        if reserved_count < len(axis_data) == len(axis_index):
+            end_index = len(axis_data)
+            axis_data = axis_data[end_index - reserved_count:end_index:1]
+            if item_value_change_func is not None:
+                axis_data = list(map(item_value_change_func, axis_data))
+            axis_index = axis_index[end_index - reserved_count:end_index:1]
+        return Series(data=axis_data, index=axis_index)
+
+    @staticmethod
+    def parse_json_to_series_filter_dirty(guoren_content, item_change_func, reserved_count=1800):
+        guoren_data = json.loads(guoren_content)
+        axis_data = guoren_data['data']['sheet_data']['meas_data'][0]
+        axis_index = guoren_data['data']['sheet_data']['row'][0]['data'][1]
+        axis_index = list(map(lambda x: x[2:], axis_index))
+        axis_tuple_list = list(zip(axis_index, axis_data))
+        if reserved_count < len(axis_tuple_list):
+            end_index = len(axis_tuple_list)
+            axis_tuple_list = axis_tuple_list[end_index - reserved_count:end_index:1]
+            axis_tuple_list = list(filter(lambda x: x[1] != '', axis_tuple_list))
+            axis_tuple_list = list(map(item_change_func, axis_tuple_list))
+            axis_unzip_tuple_list = list(zip(*axis_tuple_list))
+            return Series(data=list(axis_unzip_tuple_list[1]), index=list(axis_unzip_tuple_list[0]))
+        else:
+            return Series()
 
 
 if __name__ == '__main__':

@@ -1,4 +1,19 @@
+import json
+from json.decoder import WHITESPACE
+
 from pandas import Series
+
+
+class StockDecoder(json.JSONDecoder):
+    def decode(self, s, _w=WHITESPACE.match):
+        dict_data = super().decode(s)
+        if dict_data['count'] > 0:
+            local_stock_data = XueqiuStockList(total_count=dict_data['count'])
+            for item in dict_data['list']:
+                stock = XueqiuStock.create(item)
+                local_stock_data.append(stock)
+            return local_stock_data
+        return XueqiuStockList()
 
 
 class XueqiuStockList(object):
@@ -20,6 +35,10 @@ class XueqiuStockList(object):
 
     def get_req_new_page(self):
         return len(self.stock_list) / self.page_count + 1
+
+    @staticmethod
+    def create(json_content):
+        return json.loads(json_content, cls=StockDecoder)
 
 
 class XueqiuStock(object):
