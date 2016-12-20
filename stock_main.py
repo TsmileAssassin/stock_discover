@@ -21,7 +21,7 @@ def generate_data_by_code_using_guoren(code, name, reserved_count=1800):
     plt.title('历史PE')
     guoren_content = guoren_api.submit_req_pe()
     print(guoren_content)
-    pe_series = GuorenApi.parse_json_to_series_filter_dirty(guoren_content, lambda x: (x[0], int(x[1])),
+    pe_series = GuorenApi.parse_json_to_series_filter_dirty(guoren_content, lambda x: (x[0], float(x[1])),
                                                             reserved_count=reserved_count)
     total_len = len(pe_series)
     pe = pe_series.get(total_len - 1)
@@ -176,8 +176,8 @@ def generate_data_by_xueqiu_strategy(xueqiu):
 
 
 # generate_data_by_xueqiu_strategy(XueqiuStrategies.fastest())
-generate_data_by_code_using_guoren('600886', '国投电力')
+# generate_data_by_code_using_guoren('600886', '国投电力')
 # generate_data_by_code_using_guoren('601166', '兴业银行')
 # generate_data_by_code_using_guoren('600066', '宇通客车')
 # generate_data_by_code_using_guoren('601318', '中国平安', 1400)
-# generate_data_by_code_using_guoren('600048', '保利地产')
+generate_data_by_code_using_guoren('600048', '保利地产')
