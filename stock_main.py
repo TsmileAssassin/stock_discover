@@ -7,12 +7,13 @@ import matplotlib.pyplot as plt
 
 from guoren_api import GuorenApi
 from xueqiu_data import XueqiuStockList
+from xueqiu_strategy import XueqiuStrategies
 
 plt.style.use('ggplot')
 
 
-def generate_data_by_code_using_guoren(code, name, reserved_count=1800):
-    os.makedirs('gen/custom/', exist_ok=True)
+def generate_data_by_code_using_guoren(code, name, reserved_count=1800, root_dir='gen/custom/'):
+    os.makedirs(root_dir, exist_ok=True)
     plt.figure(num=1, figsize=(8, 36))
     plt.clf()
     guoren_api = GuorenApi(code)
@@ -24,21 +25,23 @@ def generate_data_by_code_using_guoren(code, name, reserved_count=1800):
     pe_series = GuorenApi.parse_json_to_series_filter_dirty(guoren_content, lambda x: (x[0], float(x[1])),
                                                             reserved_count=reserved_count)
     total_len = len(pe_series)
-    pe = pe_series.get(total_len - 1)
-    gt_now_pe_percent = len(pe_series[pe_series > pe]) / total_len * 100
-    pe = round(pe, 2)
-    pe_series.plot()
+    if total_len > 0:
+        pe = pe_series.get(total_len - 1)
+        gt_now_pe_percent = len(pe_series[pe_series > pe]) / total_len * 100
+        pe = round(pe, 2)
+        pe_series.plot()
 
     plt.subplot(912)
     plt.title('历史PB')
     guoren_content = guoren_api.submit_req_pb()
     print(guoren_content)
     pb_series = GuorenApi.parse_json_to_series(guoren_content, reserved_count=reserved_count)
-    total_len = len(pe_series)
-    pb = pb_series.get(total_len - 1)
-    gt_now_pb_percent = len(pb_series[pb_series > pb]) / total_len * 100
-    pb = round(pb, 2)
-    pb_series.plot()
+    total_len = len(pb_series)
+    if total_len > 0:
+        pb = pb_series.get(total_len - 1)
+        gt_now_pb_percent = len(pb_series[pb_series > pb]) / total_len * 100
+        pb = round(pb, 2)
+        pb_series.plot()
 
     plt.subplot(913)
     plt.title('5日均成交量(单位:10万)')
@@ -49,9 +52,10 @@ def generate_data_by_code_using_guoren(code, name, reserved_count=1800):
                                                                     lambda x: (x[0], int(x[1] / 100000)),
                                                                     reserved_count=reserved_count)
         total_len = len(volume_series)
-        gt_now_volume_percent = len(
-                volume_series[volume_series > volume_series.get(len(volume_series) - 1)]) / total_len * 100
-        volume_series.plot()
+        if total_len > 0:
+            gt_now_volume_percent = len(
+                    volume_series[volume_series > volume_series.get(len(volume_series) - 1)]) / total_len * 100
+            volume_series.plot()
     except TypeError:
         volume_series = None
         gt_now_volume_percent = None
@@ -106,7 +110,30 @@ def generate_data_by_code_using_guoren(code, name, reserved_count=1800):
         title += '\n{} 到 {} {}%时间大于当前成交量\n'.format(volume_series.first_valid_index(), volume_series.last_valid_index(),
                                                    round(gt_now_volume_percent, 2))
     plt.suptitle(title)
-    plt.savefig('gen/custom/{}_{}.png'.format(name, code))
+    plt.savefig(root_dir + '{}_{}.png'.format(name, code))
+
+
+def generate_data_from_guoren_by_xueqiu_strategy(xueqiu):
+    # step 1: req filter strategy from xueqiu
+    content = xueqiu.submit_req()
+    print(content)
+    xueqiu_stock_list = XueqiuStockList.create(content)
+    while xueqiu_stock_list.has_more():
+        content = xueqiu.submit_req(xueqiu_stock_list.get_req_new_page())
+        print(content)
+        xueqiu_stock_new_page_list = XueqiuStockList.create(content)
+        xueqiu_stock_list.append_list(xueqiu_stock_new_page_list.stock_list)
+    print("\ncount:{}".format(len(xueqiu_stock_list.stock_list)))
+
+    os.makedirs('gen/{}/'.format(xueqiu.name), exist_ok=True)
+    file = open('gen/{}.txt'.format(xueqiu.name), 'w', encoding='utf-8')
+    file.write('{}'.format(xueqiu_stock_list.stock_list))
+    file.close()
+
+    # step 2: draw pic totally from guoren
+    for idx, stock_item in enumerate(xueqiu_stock_list.stock_list):
+        generate_data_by_code_using_guoren(stock_item.symbol[2:], stock_item.name,
+                                           root_dir='gen/{}/'.format(xueqiu.name))
 
 
 def generate_data_by_xueqiu_strategy(xueqiu):
@@ -172,12 +199,12 @@ def generate_data_by_xueqiu_strategy(xueqiu):
         plt.title(stock_item.interest.name)
         stock_item.interest.sort_index(ascending=True).plot()
         # plt.show()
-        plt.savefig('gen/{}/{}_{}.png'.format(xueqiu.name, stock_item.name, stock_item.symbol))
+        plt.savefig('gen/{}/{}_{}.png'.format(xueqiu.name, stock_item.name, stock_item.symbol[2:]))
 
 
-# generate_data_by_xueqiu_strategy(XueqiuStrategies.fastest())
+generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.stable_strict())
 # generate_data_by_code_using_guoren('600886', '国投电力')
 # generate_data_by_code_using_guoren('601166', '兴业银行')
 # generate_data_by_code_using_guoren('600066', '宇通客车')
 # generate_data_by_code_using_guoren('601318', '中国平安', 1400)
-generate_data_by_code_using_guoren('600048', '保利地产')
+# generate_data_by_code_using_guoren('600048', '保利地产')

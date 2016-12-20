@@ -108,9 +108,9 @@ class GuorenApi(object):
         if reserved_count < len(axis_data) == len(axis_index):
             end_index = len(axis_data)
             axis_data = axis_data[end_index - reserved_count:end_index:1]
-            if item_value_change_func is not None:
-                axis_data = list(map(item_value_change_func, axis_data))
             axis_index = axis_index[end_index - reserved_count:end_index:1]
+        if item_value_change_func is not None:
+            axis_data = list(map(item_value_change_func, axis_data))
         return Series(data=axis_data, index=axis_index)
 
     @staticmethod
@@ -123,12 +123,10 @@ class GuorenApi(object):
         if reserved_count < len(axis_tuple_list):
             end_index = len(axis_tuple_list)
             axis_tuple_list = axis_tuple_list[end_index - reserved_count:end_index:1]
-            axis_tuple_list = list(filter(lambda x: x[1] != '', axis_tuple_list))
-            axis_tuple_list = list(map(item_change_func, axis_tuple_list))
-            axis_unzip_tuple_list = list(zip(*axis_tuple_list))
-            return Series(data=list(axis_unzip_tuple_list[1]), index=list(axis_unzip_tuple_list[0]))
-        else:
-            return Series()
+        axis_tuple_list = list(filter(lambda x: x[1] != '', axis_tuple_list))
+        axis_tuple_list = list(map(item_change_func, axis_tuple_list))
+        axis_unzip_tuple_list = list(zip(*axis_tuple_list))
+        return Series(data=list(axis_unzip_tuple_list[1]), index=list(axis_unzip_tuple_list[0]))
 
 
 if __name__ == '__main__':
