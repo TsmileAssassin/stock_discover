@@ -23,7 +23,10 @@ def generate_data_by_code_using_guoren(code, name, reserved_count=1800):
     print(guoren_content)
     pe_series = GuorenApi.parse_json_to_series_filter_dirty(guoren_content, lambda x: (x[0], int(x[1])),
                                                             reserved_count=reserved_count)
-    pe = round(pe_series.get(len(pe_series) - 1), 2)
+    total_len = len(pe_series)
+    pe = pe_series.get(total_len - 1)
+    gt_now_pe_percent = len(pe_series[pe_series > pe]) / total_len * 100
+    pe = round(pe, 2)
     pe_series.plot()
 
     plt.subplot(912)
@@ -31,7 +34,10 @@ def generate_data_by_code_using_guoren(code, name, reserved_count=1800):
     guoren_content = guoren_api.submit_req_pb()
     print(guoren_content)
     pb_series = GuorenApi.parse_json_to_series(guoren_content, reserved_count=reserved_count)
-    pb = round(pb_series.get(len(pb_series) - 1), 2)
+    total_len = len(pe_series)
+    pb = pb_series.get(total_len - 1)
+    gt_now_pb_percent = len(pb_series[pb_series > pb]) / total_len * 100
+    pb = round(pb, 2)
     pb_series.plot()
 
     plt.subplot(913)
@@ -39,9 +45,16 @@ def generate_data_by_code_using_guoren(code, name, reserved_count=1800):
     guoren_content = guoren_api.submit_req_volume()
     print(guoren_content)
     try:
-        GuorenApi.parse_json_to_series_filter_dirty(guoren_content, lambda x: (x[0], int(x[1] / 100000)),
-                                                    reserved_count=reserved_count).plot()
+        volume_series = GuorenApi.parse_json_to_series_filter_dirty(guoren_content,
+                                                                    lambda x: (x[0], int(x[1] / 100000)),
+                                                                    reserved_count=reserved_count)
+        total_len = len(volume_series)
+        gt_now_volume_percent = len(
+                volume_series[volume_series > volume_series.get(len(volume_series) - 1)]) / total_len * 100
+        volume_series.plot()
     except TypeError:
+        volume_series = None
+        gt_now_volume_percent = None
         print("error to print")
 
     plt.subplot(914)
@@ -83,8 +96,16 @@ def generate_data_by_code_using_guoren(code, name, reserved_count=1800):
     print(guoren_content)
     GuorenApi.parse_json_to_series(guoren_content, lambda x: x * 100, reserved_count=reserved_count).plot()
 
-    plt.suptitle('{} {}\n动态市盈率:{}, 市净率:{},股息率:{}'.format(
-            name, code, pe, pb, dy))
+    title = '{} {}\n动态市盈率:{}, 市净率:{},股息率:{}\n'.format(
+            name, code, pe, pb, dy)
+    title += '\n{} 到 {} {}%时间大于当前市盈率\n'.format(pe_series.first_valid_index(), pe_series.last_valid_index(),
+                                               round(gt_now_pe_percent, 2))
+    title += '\n{} 到 {} {}%时间大于当前市净率\n'.format(pb_series.first_valid_index(), pb_series.last_valid_index(),
+                                               round(gt_now_pb_percent, 2))
+    if volume_series is not None and gt_now_volume_percent is not None:
+        title += '\n{} 到 {} {}%时间大于当前成交量\n'.format(volume_series.first_valid_index(), volume_series.last_valid_index(),
+                                                   round(gt_now_volume_percent, 2))
+    plt.suptitle(title)
     plt.savefig('gen/custom/{}_{}.png'.format(name, code))
 
 
@@ -155,9 +176,8 @@ def generate_data_by_xueqiu_strategy(xueqiu):
 
 
 # generate_data_by_xueqiu_strategy(XueqiuStrategies.fastest())
-# generate_data_by_code_using_guoren('600886', '国投电力')
+generate_data_by_code_using_guoren('600886', '国投电力')
 # generate_data_by_code_using_guoren('601166', '兴业银行')
 # generate_data_by_code_using_guoren('600066', '宇通客车')
 # generate_data_by_code_using_guoren('601318', '中国平安', 1400)
-generate_data_by_code_using_guoren('600048', '保利地产')
-
+# generate_data_by_code_using_guoren('600048', '保利地产')
