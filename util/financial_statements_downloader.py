@@ -18,7 +18,6 @@ def download_financial_year_statements(code, year):
         'Origin': 'http://www.cninfo.com.cn',
         'Connection': 'keep-alive',
         'Referer': 'http://www.cninfo.com.cn/cninfo-new/disclosure/szse/showFulltext/{}'.format(code),
-        'Cookie': 'JSESSIONID=6021D7DEAC64EA437636C67583A751FB; __guid=182209569.276801165252965800.1482238312289.789; monitor_count=2'
     }
     content_len = len(req_data_bytes)
     headers['Content-Length'] = str(content_len)
