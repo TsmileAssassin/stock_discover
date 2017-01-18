@@ -22,26 +22,31 @@ def dcf(now_profit, grow_rate_list, discount_rate, forever_rate=0):
 
 if __name__ == '__main__':
     # 宇通客车保守
-    value_now = 445
+    value_now = 431.5
     value_estimate = dcf(39.88, [3, 3, 10, 10, 5], 10, 0)
     print('===宇通客车 Discount: %f \n' % (value_now / value_estimate))
 
     # 兴业银行保守
-    value_now = 3277
+    value_now = 3055
     value_estimate = dcf(502.5, [2, 2, 2, 2, 2], 10, 0)
     print('===兴业银行 Discount: %f \n' % (value_now / value_estimate))
 
     # 中国平安保守
-    value_now = 6796
+    value_now = 6431
     value_estimate = dcf(695, [10, 10, 10, 5, 5], 10, 0)
     print('===中国平安 Discount: %f \n' % (value_now / value_estimate))
 
     # 国投电力保守
-    value_now = 459
-    value_estimate = dcf(39, [3, 3, 10, 10, 10], 10, 0)
+    value_now = 452
+    value_estimate = dcf(43, [3, 3, 10, 10, 10], 10, 0)
     print('===国投电力 Discount: %f \n' % (value_now / value_estimate))
 
     # 保利地产保守
-    value_now = 1134
+    value_now = 1074
     value_estimate = dcf(130, [5, 5, 5, 5, 5], 10, 0)
     print('===保利地产 Discount: %f \n' % (value_now / value_estimate))
+
+    # 长安汽车保守
+    value_now = 718
+    value_estimate = dcf(100, [-15, 1, 10, 10, 5], 10, 0)
+    print('===长安汽车 Discount: %f \n' % (value_now / value_estimate))

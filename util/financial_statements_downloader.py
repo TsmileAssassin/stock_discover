@@ -3,11 +3,16 @@ import os
 import urllib.request
 
 
-def download_financial_year_statements(code, year):
+def download_financial_year_statements(code, year, is_mid_year=False):
     # 从巨潮资讯网下载文档
     req_data = 'stock={}'.format(code)
     req_data += '&pageNum=1&pageSize=30'
-    req_data += '&searchkey=&category=category_ndbg_szsh%3B&column=sse&tabName=fulltext&sortName=&sortType=&limit=&seDate=Name'
+    req_data += '&searchkey=&tabName=fulltext&sortName=&sortType=&limit=&seDate=Name'
+    if is_mid_year:
+        req_data += '&category=category_bndbg_szsh%3B&column=szse_main'
+    else:
+        req_data += '&category=category_ndbg_szsh%3B&column=sse'
+    print(req_data)
     req_data_bytes = req_data.encode('utf8')
     headers = {
         'X-Requested-With': 'XMLHttpRequest',
@@ -25,6 +30,7 @@ def download_financial_year_statements(code, year):
                                  data=req_data_bytes, headers=headers, method='POST')
     print(headers)
     content = urllib.request.urlopen(req).read().decode("utf8")
+    print(content)
     statements_data = json.loads(content)
     found_statement = None
     for statement in statements_data['announcements']:
@@ -36,11 +42,15 @@ def download_financial_year_statements(code, year):
         os.makedirs('../gen/statement/', exist_ok=True)
         statement_file_url = 'http://www.cninfo.com.cn/' + found_statement['adjunctUrl']
         print(statement_file_url)
-        local_file = '../gen/statement/{}_{}.pdf'.format(found_statement['secName'], year)
+        if is_mid_year:
+            local_file = '../gen/statement/{}_{}M.pdf'.format(found_statement['secName'], year)
+        else:
+            local_file = '../gen/statement/{}_{}.pdf'.format(found_statement['secName'], year)
         urllib.request.urlretrieve(statement_file_url, local_file)
 
 
 if __name__ == '__main__':
-    download_financial_year_statements('601166', '2015')
-    download_financial_year_statements('601166', '2014')
-    download_financial_year_statements('601166', '2013')
+    download_financial_year_statements('600886', '2016', True)
+    # download_financial_year_statements('600048', '2015')
+    # download_financial_year_statements('600048', '2014')
+    # download_financial_year_statements('600048', '2013')
