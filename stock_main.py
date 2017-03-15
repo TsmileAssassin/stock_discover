@@ -113,7 +113,7 @@ def generate_data_by_code_using_guoren(code, name, reserved_count=1800, root_dir
     plt.savefig(root_dir + '{}_{}.png'.format(name, code))
 
 
-def generate_data_from_guoren_by_xueqiu_strategy(xueqiu):
+def generate_data_from_guoren_by_xueqiu_strategy(xueqiu, is_just_data=False):
     # step 1: req filter strategy from xueqiu
     content = xueqiu.submit_req()
     print(content)
@@ -129,11 +129,11 @@ def generate_data_from_guoren_by_xueqiu_strategy(xueqiu):
     file = open('gen/{}.txt'.format(xueqiu.name), 'w', encoding='utf-8')
     file.write('{}'.format(xueqiu_stock_list.stock_list))
     file.close()
-
-    # step 2: draw pic totally from guoren
-    for idx, stock_item in enumerate(xueqiu_stock_list.stock_list):
-        generate_data_by_code_using_guoren(stock_item.symbol[2:], stock_item.name,
-                                           root_dir='gen/{}/'.format(xueqiu.name))
+    if not is_just_data:
+        # step 2: draw pic totally from guoren
+        for idx, stock_item in enumerate(xueqiu_stock_list.stock_list):
+            generate_data_by_code_using_guoren(stock_item.symbol[2:], stock_item.name,
+                                               root_dir='gen/{}/'.format(xueqiu.name))
 
 
 def generate_data_by_xueqiu_strategy(xueqiu):
@@ -202,14 +202,19 @@ def generate_data_by_xueqiu_strategy(xueqiu):
         plt.savefig('gen/{}/{}_{}.png'.format(xueqiu.name, stock_item.name, stock_item.symbol[2:]))
 
 
-generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.stable_strict())
-# generate_data_by_code_using_guoren('600886', '国投电力')
-# generate_data_by_code_using_guoren('601166', '兴业银行')
-# generate_data_by_code_using_guoren('600066', '宇通客车')
+generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.stable_strict(), True)
+# generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.stable_short(), True)
+# generate_data_by_code_using_guoren('600886', '国投电力', 1400)
+# generate_data_by_code_using_guoren('601166', '兴业银行', 1400)
+# generate_data_by_code_using_guoren('600066', '宇通客车', 1400)
 # generate_data_by_code_using_guoren('601318', '中国平安', 1400)
-# generate_data_by_code_using_guoren('600048', '保利地产')
+# generate_data_by_code_using_guoren('600048', '保利地产', 1400)
 # generate_data_by_code_using_guoren('000625', '长安汽车', 1400)
-# generate_data_by_code_using_guoren('000651', '格力电器')
-# generate_data_by_code_using_guoren('601939', '建设银行')
-# generate_data_by_code_using_guoren('601668', '中国建筑')
-# generate_data_by_code_using_guoren('000333', '美的集团')
+# generate_data_by_code_using_guoren('000651', '格力电器', 1400)
+# generate_data_by_code_using_guoren('601939', '建设银行', 1400)
+# generate_data_by_code_using_guoren('601668', '中国建筑', 1400)
+# generate_data_by_code_using_guoren('000333', '美的集团', 1400)
+# generate_data_by_code_using_guoren('002304', '洋河股份', 1400)
+# generate_data_by_code_using_guoren('002415', '海康威视', 1400)
+# generate_data_by_code_using_guoren('600887', '伊利股份', 1400)
+# generate_data_by_code_using_guoren('600674', '川投能源', 1400)

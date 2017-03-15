@@ -57,7 +57,7 @@ class XueqiuStrategies(object):
     @staticmethod
     def stable_short():
         stable = XueqiuApi('stable_short')
-        stable.append_pettm('0', '25')
+        stable.append_pettm('0', '30')
         stable.append_pb()
         stable.append_dy()
         stable.append_roediluted('20160930', '10', is_order_by_this=True)
@@ -339,7 +339,7 @@ class XueqiuStrategies(object):
     @staticmethod
     def fastest():
         fast = XueqiuApi('fastest')
-        fast.append_pettm('0', '30')
+        fast.append_pettm('0', '35')
         fast.append_pb()
         fast.append_dy()
         fast.append_roediluted('20160930', '12', is_order_by_this=True)
@@ -351,9 +351,9 @@ class XueqiuStrategies(object):
         fast.append_roediluted('20101231')
         fast.append_roediluted('20091231')
 
-        fast.append_income_grow('20160930', '12')
-        fast.append_income_grow('20151231', '12')
-        fast.append_income_grow('20141231', '12')
+        fast.append_income_grow('20160930', '10')
+        fast.append_income_grow('20151231', '10')
+        fast.append_income_grow('20141231', '10')
         fast.append_income_grow('20131231')
         fast.append_income_grow('20121231')
         fast.append_income_grow('20111231')
@@ -361,7 +361,7 @@ class XueqiuStrategies(object):
         fast.append_income_grow('20091231')
 
         fast.append_profie_grow('20160930', '15')
-        fast.append_profie_grow('20151231', '20')
+        fast.append_profie_grow('20151231', '18')
         fast.append_profie_grow('20141231', '18')
         fast.append_profie_grow('20131231')
         fast.append_profie_grow('20121231')
