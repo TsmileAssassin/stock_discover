@@ -1,4 +1,5 @@
 import json
+import time
 import urllib.request
 
 from pandas import Series
@@ -10,6 +11,7 @@ class GuorenApi(object):
     def __init__(self, symbol=None):
         self.symbol = symbol
         self.__req_url = 'https://guorn.com/stock/query'
+        self.__req_delay = 5
 
     def get_req_headers(self):
         return {
@@ -27,6 +29,9 @@ class GuorenApi(object):
 
     def get_req_url(self):
         return self.__req_url
+
+    def get_req_delay(self):
+        return self.__req_delay
 
     def get_req_data_pe(self):
         return '{"ticker":[["%s","0.M.股票每日指标_市盈率.0"]],"index":[],"sector":[],"pool":[],"strategy":[]}' % self.symbol
@@ -89,6 +94,7 @@ class GuorenApi(object):
         return self.__submit_req(self.get_req_data_gross_profie_grow())
 
     def __submit_req(self, req_data):
+        time.sleep(self.get_req_delay())
         guoren_data = req_data.encode("utf8")
         guoren_data_len = len(guoren_data)
         guoren_headers = self.get_req_headers()

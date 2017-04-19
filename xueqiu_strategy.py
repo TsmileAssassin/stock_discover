@@ -198,7 +198,7 @@ class XueqiuStrategies(object):
     @staticmethod
     def faster_short():
         fast = XueqiuApi('faster_short')
-        fast.append_pettm('0', '30')
+        fast.append_pettm('0', '25')
         fast.append_pb()
         fast.append_dy()
         fast.append_roediluted('20161231', '18', is_order_by_this=True)
@@ -235,11 +235,11 @@ class XueqiuStrategies(object):
     @staticmethod
     def fast():
         fast = XueqiuApi('fast')
-        fast.append_pettm('0', '30')
+        fast.append_pettm('0', '25')
         fast.append_pb()
         fast.append_dy()
-        fast.append_roediluted('20161231', '18')
-        fast.append_roediluted('20151231', '18', is_order_by_this=True)
+        fast.append_roediluted('20161231', '15', is_order_by_this=True)
+        fast.append_roediluted('20151231', '15')
         fast.append_roediluted('20141231', '15')
         fast.append_roediluted('20131231')
         fast.append_roediluted('20121231')
@@ -256,7 +256,7 @@ class XueqiuStrategies(object):
         fast.append_income_grow('20101231')
         fast.append_income_grow('20091231')
 
-        fast.append_profie_grow('20161231', '7')
+        fast.append_profie_grow('20161231', '10')
         fast.append_profie_grow('20151231', '10')
         fast.append_profie_grow('20141231', '10')
         fast.append_profie_grow('20131231')
@@ -287,12 +287,12 @@ class XueqiuStrategies(object):
     @staticmethod
     def faster():
         fast = XueqiuApi('faster')
-        fast.append_pettm('0', '30')
+        fast.append_pettm('0', '25')
         fast.append_pb()
         fast.append_dy()
-        fast.append_roediluted('20161231', '18', is_order_by_this=True)
-        fast.append_roediluted('20151231', '18')
-        fast.append_roediluted('20141231', '10')
+        fast.append_roediluted('20161231', '15', is_order_by_this=True)
+        fast.append_roediluted('20151231', '15')
+        fast.append_roediluted('20141231', '15')
         fast.append_roediluted('20131231')
         fast.append_roediluted('20121231')
         fast.append_roediluted('20111231')
@@ -339,7 +339,7 @@ class XueqiuStrategies(object):
     @staticmethod
     def fastest():
         fast = XueqiuApi('fastest')
-        fast.append_pettm('0', '35')
+        fast.append_pettm('0', '25')
         fast.append_pb()
         fast.append_dy()
         fast.append_roediluted('20161231', '15', is_order_by_this=True)

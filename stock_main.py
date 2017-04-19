@@ -203,7 +203,12 @@ def generate_data_by_xueqiu_strategy(xueqiu):
 
 
 generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.stable_strict(), True)
-# generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.stable_short(), True)
+generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.stable_short(), True)
+generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.stable(), True)
+generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.fastest(), True)
+generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.faster(), True)
+generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.fast(), True)
+
 # generate_data_by_code_using_guoren('600886', '国投电力', 1400)
 # generate_data_by_code_using_guoren('601166', '兴业银行', 1400)
 # generate_data_by_code_using_guoren('600066', '宇通客车', 1400)
@@ -218,3 +223,4 @@ generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.stable_strict(), T
 # generate_data_by_code_using_guoren('002415', '海康威视', 1400)
 # generate_data_by_code_using_guoren('600887', '伊利股份', 1400)
 # generate_data_by_code_using_guoren('600674', '川投能源', 1400)
+# generate_data_by_code_using_guoren('000001', '平安银行', 1400)
