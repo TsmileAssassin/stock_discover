@@ -6,8 +6,8 @@ import os
 import matplotlib.pyplot as plt
 
 from guoren_api import GuorenApi
+from tonghuashui_api import TonghuashuiApi
 from xueqiu_data import XueqiuStockList
-from xueqiu_strategy import XueqiuStrategies
 
 plt.style.use('ggplot')
 
@@ -18,7 +18,7 @@ def generate_data_by_code_using_guoren(code, name, reserved_count=1800, root_dir
     plt.clf()
     guoren_api = GuorenApi(code)
 
-    plt.subplot(911)
+    plt.subplot(10, 1, 1)
     plt.title('历史PE')
     guoren_content = guoren_api.submit_req_pe()
     print(guoren_content)
@@ -31,7 +31,7 @@ def generate_data_by_code_using_guoren(code, name, reserved_count=1800, root_dir
         pe = round(pe, 2)
         pe_series.plot()
 
-    plt.subplot(912)
+    plt.subplot(10, 1, 2)
     plt.title('历史PB')
     guoren_content = guoren_api.submit_req_pb()
     print(guoren_content)
@@ -43,7 +43,7 @@ def generate_data_by_code_using_guoren(code, name, reserved_count=1800, root_dir
         pb = round(pb, 2)
         pb_series.plot()
 
-    plt.subplot(913)
+    plt.subplot(10, 1, 3)
     plt.title('5日均成交量(单位:10万)')
     guoren_content = guoren_api.submit_req_volume()
     print(guoren_content)
@@ -54,20 +54,20 @@ def generate_data_by_code_using_guoren(code, name, reserved_count=1800, root_dir
         total_len = len(volume_series)
         if total_len > 0:
             gt_now_volume_percent = len(
-                    volume_series[volume_series > volume_series.get(len(volume_series) - 1)]) / total_len * 100
+                volume_series[volume_series > volume_series.get(len(volume_series) - 1)]) / total_len * 100
             volume_series.plot()
     except TypeError:
         volume_series = None
         gt_now_volume_percent = None
         print("error to print")
 
-    plt.subplot(914)
+    plt.subplot(10, 1, 4)
     plt.title('ROE')
     guoren_content = guoren_api.submit_req_roe()
     print(guoren_content)
     GuorenApi.parse_json_to_series(guoren_content, lambda x: x * 100, reserved_count=reserved_count).plot()
 
-    plt.subplot(915)
+    plt.subplot(10, 1, 5)
     plt.title('股息率')
     guoren_content = guoren_api.submit_req_dy()
     print(guoren_content)
@@ -75,33 +75,48 @@ def generate_data_by_code_using_guoren(code, name, reserved_count=1800, root_dir
     dy = round(dy_series.get(len(dy_series) - 1), 2)
     dy_series.plot()
 
-    plt.subplot(916)
+    plt.subplot(10, 1, 6)
     plt.title('收入增长率')
     guoren_content = guoren_api.submit_req_income_grow()
     print(guoren_content)
     GuorenApi.parse_json_to_series(guoren_content, lambda x: x * 100, reserved_count=reserved_count).plot()
 
-    plt.subplot(917)
+    plt.subplot(10, 1, 7)
     plt.title('利润增长率')
     guoren_content = guoren_api.submit_req_profie_grow()
     print(guoren_content)
     GuorenApi.parse_json_to_series_filter_dirty(guoren_content, lambda x: (x[0], int(x[1] * 100)),
                                                 reserved_count=reserved_count).plot()
 
-    plt.subplot(918)
-    plt.title('毛利率')
-    guoren_content = guoren_api.submit_req_gross()
-    print(guoren_content)
-    GuorenApi.parse_json_to_series(guoren_content, lambda x: x * 100, reserved_count=reserved_count).plot()
+    tonghuashui_api = TonghuashuiApi(code)
+    tonghuashui_api.submit_req()
+    if tonghuashui_api.is_bank_data():
+        plt.subplot(10, 1, 8)
+        plt.title('拨备覆盖率')
+        tonghuashui_api.get_bank_provision_coverage_series(int(pe_series.first_valid_index()[0:2])).plot()
 
-    plt.subplot(919)
-    plt.title('净利率')
-    guoren_content = guoren_api.submit_req_interest()
-    print(guoren_content)
-    GuorenApi.parse_json_to_series(guoren_content, lambda x: x * 100, reserved_count=reserved_count).plot()
+        plt.subplot(10, 1, 9)
+        plt.title('不良贷款率')
+        tonghuashui_api.get_bank_bad_debts_series(int(pe_series.first_valid_index()[0:2])).plot()
+
+        plt.subplot(10, 1, 10)
+        plt.title('净息差')
+        tonghuashui_api.get_bank_interest_series(int(pe_series.first_valid_index()[0:2])).plot()
+    else:
+        plt.subplot(10, 1, 8)
+        plt.title('毛利率')
+        guoren_content = guoren_api.submit_req_gross()
+        print(guoren_content)
+        GuorenApi.parse_json_to_series(guoren_content, lambda x: x * 100, reserved_count=reserved_count).plot()
+
+        plt.subplot(10, 1, 9)
+        plt.title('净利率')
+        guoren_content = guoren_api.submit_req_interest()
+        print(guoren_content)
+        GuorenApi.parse_json_to_series(guoren_content, lambda x: x * 100, reserved_count=reserved_count).plot()
 
     title = '{} {}\n动态市盈率:{}, 市净率:{},股息率:{}\n'.format(
-            name, code, pe, pb, dy)
+        name, code, pe, pb, dy)
     title += '\n{} 到 {} {}%时间大于当前市盈率\n'.format(pe_series.first_valid_index(), pe_series.last_valid_index(),
                                                round(gt_now_pe_percent, 2))
     title += '\n{} 到 {} {}%时间大于当前市净率\n'.format(pb_series.first_valid_index(), pb_series.last_valid_index(),
@@ -109,6 +124,15 @@ def generate_data_by_code_using_guoren(code, name, reserved_count=1800, root_dir
     if volume_series is not None and gt_now_volume_percent is not None:
         title += '\n{} 到 {} {}%时间大于当前成交量\n'.format(volume_series.first_valid_index(), volume_series.last_valid_index(),
                                                    round(gt_now_volume_percent, 2))
+    if tonghuashui_api.is_bank_data():
+        max_provision = tonghuashui_api.get_bank_max_provision_coverage(int(pe_series.first_valid_index()[0:2]))
+        max_bad = tonghuashui_api.get_bank_max_bad_debts(int(pe_series.first_valid_index()[0:2]))
+        max_interest = tonghuashui_api.get_bank_max_interest(int(pe_series.first_valid_index()[0:2]))
+        if max_provision[0] == max_bad[0]:
+            title += '\n截止{} 拨备覆盖率: {}, 不良率: {}\n'.format(max_provision[0], max_provision[1], max_bad[1])
+        else:
+            title += '\n{} 拨备覆盖率: {}, {} 不良率: {}\n'.format(max_provision[0], max_provision[1], max_bad[0], max_bad[1])
+        title += '\n截止{} 净息差: {}\n'.format(max_interest[0], max_interest[1])
     plt.suptitle(title)
     plt.savefig(root_dir + '{}_{}.png'.format(name, code))
 
@@ -158,7 +182,7 @@ def generate_data_by_xueqiu_strategy(xueqiu):
         plt.figure(num=1, figsize=(8, 30))
         plt.clf()
         plt.suptitle('{} {}\n动态市盈率:{}, 市净率:{},股息率:{}'.format(
-                stock_item.name, stock_item.symbol, stock_item.pettm, stock_item.pb, stock_item.dy))
+            stock_item.name, stock_item.symbol, stock_item.pettm, stock_item.pb, stock_item.dy))
         print('symbol:' + stock_item.symbol[2:])
         guoren_api = GuorenApi(stock_item.symbol[2:])
 
@@ -202,25 +226,30 @@ def generate_data_by_xueqiu_strategy(xueqiu):
         plt.savefig('gen/{}/{}_{}.png'.format(xueqiu.name, stock_item.name, stock_item.symbol[2:]))
 
 
-generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.stable_strict(), True)
-generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.stable_short(), True)
-generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.stable(), True)
-generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.fastest(), True)
-generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.faster(), True)
-generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.fast(), True)
+# generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.stable_strict(), True)
+# generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.stable_short(), True)
+# generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.stable(), True)
+# generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.fastest(), True)
+# generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.faster(), True)
+# generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.fast(), True)
 
+# generate_data_by_code_using_guoren('000732', '泰禾集团', 1400)
 # generate_data_by_code_using_guoren('600886', '国投电力', 1400)
-# generate_data_by_code_using_guoren('601166', '兴业银行', 1400)
 # generate_data_by_code_using_guoren('600066', '宇通客车', 1400)
 # generate_data_by_code_using_guoren('601318', '中国平安', 1400)
 # generate_data_by_code_using_guoren('600048', '保利地产', 1400)
 # generate_data_by_code_using_guoren('000625', '长安汽车', 1400)
 # generate_data_by_code_using_guoren('000651', '格力电器', 1400)
-# generate_data_by_code_using_guoren('601939', '建设银行', 1400)
 # generate_data_by_code_using_guoren('601668', '中国建筑', 1400)
 # generate_data_by_code_using_guoren('000333', '美的集团', 1400)
 # generate_data_by_code_using_guoren('002304', '洋河股份', 1400)
 # generate_data_by_code_using_guoren('002415', '海康威视', 1400)
 # generate_data_by_code_using_guoren('600887', '伊利股份', 1400)
 # generate_data_by_code_using_guoren('600674', '川投能源', 1400)
-# generate_data_by_code_using_guoren('000001', '平安银行', 1400)
+# generate_data_by_code_using_guoren('601166', '兴业银行', 1800)
+# generate_data_by_code_using_guoren('601939', '建设银行', 1800)
+# generate_data_by_code_using_guoren('600000', '浦发银行', 1800)
+# generate_data_by_code_using_guoren('601009', '南京银行', 1800)
+# generate_data_by_code_using_guoren('600016', '民生银行', 1800)
+generate_data_by_code_using_guoren('600036', '招商银行', 1800)
+# generate_data_by_code_using_guoren('000001', '平安银行', 1800)
