@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from guoren_api import GuorenApi
 from tonghuashui_api import TonghuashuiApi
 from xueqiu_data import XueqiuStockList
+from xueqiu_strategy import XueqiuStrategies
 
 plt.style.use('ggplot')
 
@@ -112,6 +113,12 @@ def generate_data_by_code_using_guoren(code, name, reserved_count=1800, root_dir
         plt.subplot(10, 1, 9)
         plt.title('净利率')
         guoren_content = guoren_api.submit_req_interest()
+        print(guoren_content)
+        GuorenApi.parse_json_to_series(guoren_content, lambda x: x * 100, reserved_count=reserved_count).plot()
+
+        plt.subplot(10, 1, 10)
+        plt.title('总资产周转率')
+        guoren_content = guoren_api.submit_req_turnover()
         print(guoren_content)
         GuorenApi.parse_json_to_series(guoren_content, lambda x: x * 100, reserved_count=reserved_count).plot()
 
@@ -233,23 +240,36 @@ def generate_data_by_xueqiu_strategy(xueqiu):
 # generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.faster(), True)
 # generate_data_from_guoren_by_xueqiu_strategy(XueqiuStrategies.fast(), True)
 
-# generate_data_by_code_using_guoren('000732', '泰禾集团', 1400)
-# generate_data_by_code_using_guoren('600886', '国投电力', 1400)
+# generate_data_by_code_using_guoren('601668', '中国建筑', 1600)
+# generate_data_by_code_using_guoren('000732', '泰禾集团', 1600)
+# generate_data_by_code_using_guoren('600048', '保利地产', 1600)
+# generate_data_by_code_using_guoren('000002', '万科A', 1600)
+# generate_data_by_code_using_guoren('600383', '金地集团', 1600)
+# generate_data_by_code_using_guoren('000671', '阳光城', 1600)
+
 # generate_data_by_code_using_guoren('600066', '宇通客车', 1400)
-# generate_data_by_code_using_guoren('601318', '中国平安', 1400)
-# generate_data_by_code_using_guoren('600048', '保利地产', 1400)
 # generate_data_by_code_using_guoren('000625', '长安汽车', 1400)
+# generate_data_by_code_using_guoren('600104', '上汽集团', 1400)
+
 # generate_data_by_code_using_guoren('000651', '格力电器', 1400)
-# generate_data_by_code_using_guoren('601668', '中国建筑', 1400)
 # generate_data_by_code_using_guoren('000333', '美的集团', 1400)
-# generate_data_by_code_using_guoren('002304', '洋河股份', 1400)
+
+# generate_data_by_code_using_guoren('601318', '中国平安', 1400)
 # generate_data_by_code_using_guoren('002415', '海康威视', 1400)
+
+# generate_data_by_code_using_guoren('002304', '洋河股份', 1400)
 # generate_data_by_code_using_guoren('600887', '伊利股份', 1400)
+
+# generate_data_by_code_using_guoren('600886', '国投电力', 1400)
 # generate_data_by_code_using_guoren('600674', '川投能源', 1400)
-# generate_data_by_code_using_guoren('601166', '兴业银行', 1800)
+
+generate_data_by_code_using_guoren('601166', '兴业银行', 1800)
 # generate_data_by_code_using_guoren('601939', '建设银行', 1800)
 # generate_data_by_code_using_guoren('600000', '浦发银行', 1800)
 # generate_data_by_code_using_guoren('601009', '南京银行', 1800)
 # generate_data_by_code_using_guoren('600016', '民生银行', 1800)
-generate_data_by_code_using_guoren('600036', '招商银行', 1800)
-# generate_data_by_code_using_guoren('000001', '平安银行', 1800)
+# generate_data_by_code_using_guoren('600036', '招商银行', 1800)
+# generate_data_by_code_using_guoren('000001', '平安银行', 1600)
+
+# generate_data_by_code_using_guoren('600741', '华域汽车', 1600)
+

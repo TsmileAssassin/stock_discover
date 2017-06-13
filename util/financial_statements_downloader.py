@@ -50,7 +50,7 @@ def download_financial_year_statements(code, year, is_mid_year=False):
 
 
 if __name__ == '__main__':
-    download_financial_year_statements('601318', '2016')
+    download_financial_year_statements('000671', '2016')
     # download_financial_year_statements('600048', '2015')
     # download_financial_year_statements('600048', '2014')
     # download_financial_year_statements('600048', '2013')

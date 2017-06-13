@@ -54,9 +54,12 @@ class XueqiuStock(object):
         self.profit_grow = profit_grow
         self.gross = gross
         self.interest = interest
+        self.pct_rate_1y = None
 
     def __repr__(self):
         output = '\n=============={0} ({1})==============\n 动态市盈率: {2} \n'.format(self.name, self.symbol, self.pettm)
+        if self.pct_rate_1y is not None:
+            output += ' 近一年涨跌幅: {0}% \n'.format(self.pct_rate_1y)
         output += '\n------{}------\n{}'.format(self.roediluted.name, self.roediluted)
         output += '\n------{}------\n{}'.format(self.income_grow.name, self.income_grow)
         output += '\n------{}------\n{}'.format(self.profit_grow.name, self.profit_grow)
@@ -70,6 +73,7 @@ class XueqiuStock(object):
         stock.name = item['name']
         stock.symbol = item['symbol']
         stock.pettm = item['pettm']
+        stock.pct_rate_1y = item['pct1y']
         stock.pb = item['pb']
         stock.dy = item['dy']
         stock.roediluted = Series(item['roediluted']).sort_index(ascending=False)

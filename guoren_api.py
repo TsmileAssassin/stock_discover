@@ -63,6 +63,9 @@ class GuorenApi(object):
     def get_req_data_gross_profie_grow(self):
         return '{"ticker":[["%s","0.M.股票每日指标_毛利润增长率.0"]],"index":[],"sector":[],"pool":[],"strategy":[]}' % self.symbol
 
+    def get_req_data_turnover(self):
+        return '{"ticker":[["%s","0.M.股票每日指标_总资产周转率.0"]],"index":[],"sector":[],"pool":[],"strategy":[]}' % self.symbol
+
     def submit_req_pe(self):
         return self.__submit_req(self.get_req_data_pe())
 
@@ -92,6 +95,9 @@ class GuorenApi(object):
 
     def submit_req_gross_profie_grow(self):
         return self.__submit_req(self.get_req_data_gross_profie_grow())
+
+    def submit_req_turnover(self):
+        return self.__submit_req(self.get_req_data_turnover())
 
     def __submit_req(self, req_data):
         time.sleep(self.get_req_delay())

@@ -52,6 +52,11 @@ class XueqiuApi(object):
         key_name = 'dar.' + time
         self.__req_url = self.__req_url + '&' + key_name + '=' + start + '_' + end
 
+    # 一年内涨跌幅
+    def append_pct_rate(self, duration='1y', start='-100', end='100'):
+        key_name = 'pct' + duration
+        self.__req_url = self.__req_url + '&' + key_name + '=' + start + '_' + end
+
     def get_req_url(self):
         return self.__req_url
 
